@@ -1,5 +1,7 @@
 # DSA_Chess
 
+http://chess-online-dgp.herokuapp.com/index
+
 install dependencies:
 cd chess && npm install
 
