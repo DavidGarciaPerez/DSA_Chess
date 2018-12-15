@@ -1,0 +1,14 @@
+.sidebar-nav{
+  padding: 0;
+  list-style:none;
+}
+
+.nav-button{
+  color:#00B7FF;
+  text-align: center;
+}
+
+.nav-button:hover{
+  transition-duration: 250ms;
+  cursor: pointer;
+}

@@ -1,0 +1,227 @@
+extends ../layout
+
+block includelib
+    // include chessboard.js 
+    include ./includes/chessboardjs.pug
+    //include chess.js
+    include ./includes/chessjs.pug
+    //include the board
+    include ./includes/board.pug
+    //inclue main game
+    include ./includes/main.pug
+    //include socket.io
+    include ./includes/socket.pug
+    //include engine.js
+    include ./includes/engine.pug
+
+
+block includestyle
+    include includes/style.pug
+block menu
+        div(class="menu-container")
+            div(class='container')
+                h6(style='text-align:center; color: #287aff; margin-top:5px; margin-bottom:5px;') INICAR SESION
+                div(id="my-signin2" align="center")
+            div(class='container')
+                h6(style='text-align:center; color: #ffbe28; margin-top:5px; margin-bottom:5px;') REGISTRO LOCAL
+                    form(id="sendUserName" method="" style="text-align:center; margin-top:5px; margin-bottom:5px;")
+                        div(class="input-group mb-3")
+                            div(class="input-group-prepend")
+                                span(class="input-group-text" style="color: #ffbe28; background-color: #444444; font-weight: bold; border: 1px solid black;") @
+                            input(id="username" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" style="background-color: #373838; color: white; border: 1px solid black;")
+                        div(class="input-group mb-3")
+                            div(class="input-group-prepend")
+                                span(class="input-group-text" style="color: #ffbe28; background-color: #444444; font-weight: bold; border: 1px solid black;") N
+                            input(id="nombre" type="text" class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1" style="background-color: #373838; color: white; border: 1px solid black;")
+                        div(class="input-group mb-3")
+                            div(class="input-group-prepend")
+                                span(class="input-group-text" style="color: #ffbe28; background-color: #444444; font-weight: bold; border: 1px solid black;") A
+                            input(id="apellidos" type="text" class="form-control" placeholder="Apellidos" aria-label="Apellidos" aria-describedby="basic-addon1" style="background-color: #373838; color: white; border: 1px solid black;")
+                        button(class="btn btn-outline-warning" type="submit" style="white-space: normal;") Guardar usuario
+            div(class='container')
+                h6(style='text-align:center; color: white; margin-top:5px; margin-bottom:5px;') JUGAR ONLINE
+                    form(id="joinGame" method="" style="text-align:center;")
+                        button(id="buscarContrincantes" class="btn btn-outline-light" type='button' style="margin-top:5px; margin-bottom:5px; white-space: normal;") Jugar contra alguien
+            div(class='container')
+                h6(style='text-align:center; color: #aa2a2a; margin-top:5px; margin-bottom:5px;') ELEGIR NIVEL CPU
+                <input type="range" min="1" max="5" value="1" class="slider" id="sliderCpuNivel">
+                    form(id="buttonCpuForm" method="" style="text-align:center; margin-top:5px; margin-bottom:5px;")
+                        button(id="buttonCpu" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; white-space: normal;") Jugar contra CPU
+            div(class='container')
+                div(class="table-container" style="text-align: center")
+                    table(id="tableUserStats" style="width: 100%;")
+                        tbody(class="tableBodyUserStats")
+                            tr()
+                                td()
+                                    img(id="profileIcon" src="http://icons.iconarchive.com/icons/saviourmachine/chat/256/online-icon.png" height="42" width="42")
+                                td()
+                                    span(id="userLabel" class="badge badge-light") username
+                            tr()
+                                td()
+                                    img(src="https://cdn4.iconfinder.com/data/icons/gamification-1/256/--02-512.png" height="42" width="42")
+                                td()
+                                    span(id="partidasGanadasLabel" class="badge badge-success") VICTORIAS 0
+                            tr()
+                                td()
+                                    img(src="https://images.vexels.com/media/users/3/134116/isolated/preview/1ad96fa7801d0d67b763bcba89682040-estrabismo-cara-ce-o-ojo-sombrero-de-santa-claus-emoticono-27-by-vexels.png" height="42" width="42")
+                                td()
+                                    span(id="partidasPerdidasLabel" class="badge badge-danger") DERROTAS 0
+                            tr()
+                                td()
+                                    img(src="http://www.kigostoso.com.br/assets/img/icons/elo.png" height="42" width="42")
+                                td()
+                                    span(id="eloUsuario" class="badge badge-secondary") ELO 1500
+block content
+        div(class="container")
+            span(id="eloPlayer1" style="margin-left: 10px" class="badge badge-light") 1500
+            img(id="iconPlayer1" src="http://icons.iconarchive.com/icons/saviourmachine/chat/256/online-icon.png" height="32" width="32")
+            span(id="player1" style="margin-left: 10px" class="badge badge-primary") Player1
+            span(style="margin-left: 10px" class="badge badge-danger") VS
+            span(id="player2" style="margin-left: 10px" class="badge badge-warning") Player2
+            img(id="iconPlayer2" src="http://icons.iconarchive.com/icons/saviourmachine/chat/256/online-icon.png" height="32" width="32")
+            span(id="eloPlayer2" style="margin-left: 10px" class="badge badge-light") 1500
+        div(class="container")
+            div(id="board" class="board")
+            span(class="badge badge-danger") CPU ACTIVA :
+            span(id="cpuActive" class="badge badge-success") NO
+            span(class="badge badge-danger") NIVEL CPU (MAX 5):
+            span(id="cpuNivel" class="badge badge-success") 0
+        div(class="container")
+            span(id="timePlayer1" style="margin-left: 10px; font-family: dsDigital,Trebuchet MS,Arial,sans-serif;" class="badge badge-primary") 00:00:00
+            span(id="timePlayer2" style="margin-left: 10px; font-family: dsDigital,Trebuchet MS,Arial,sans-serif;" class="badge badge-warning") 00:00:00
+            span(id="enJaqueLabel" style="margin-left: 10px; font-size: 12px" class="badge badge-danger") ¡JAQUE!
+block chat
+    div(class="container")
+        img(src="https://images.vexels.com/media/users/3/135670/isolated/preview/3ac77eff4921f8d9f3ca3c0da0b2c8f4-nube-del-icono-del-c-rculo-de-chat-by-vexels.png" height="32" width="32")
+        span(class="badge badge-warning") CHAT ONLINE
+    div(class="container")
+        div(class="row window moves-history" style="background-color: #4f4f4f; height:475px; border: 1px solid black; width:100%; margin:auto;")
+            ul(id='messages' class='messages-window' data-spy='scroll')
+        div(class="row window chat-box-container" style="background-color: #373838; width:100%; margin:auto;")
+            form(id="chatBox" method="")
+                input(id="chat" type="text" class="form-control" placeholder=" Escribe aquí..." aria-label="Mensaje" style="width:100%; background-color: #373838; color: white; border: 1px solid black;")
+    div(class="container")
+        img(src="http://icons.iconarchive.com/icons/saviourmachine/chat/256/online-icon.png" height="32" width="32")
+        span(id="usuariosOnline" class="badge badge-success") 0 USUARIOS CONECTADOS
+block users
+    div(class="container")
+        div(class="panel-heading" style="text-align: center")
+            h4(class="panel-title" style="color: white") USUARIOS
+    div(class="container" style="padding: 0px;")
+        div(class="table-container" style="text-align: center;")
+            table(id="tablaUsuarios" class="table-users table" style="width: 100%;")
+
+block modalOpcionesDeJuego
+    <!-- Modal para elegir opciones de juego contra un jugador -->
+    div(class="modal fade" id="modalCenterPlayOptions" data-target = "#modalCenterPlayOptions" tabindex="-1" role="dialog" aria-labelledby="modalTitlePlayOptions" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+            div(class="modal-content" style="background-color: #3d3d3d; border: 1px solid white;")
+                div(class="modal-header")
+                    h5(class="modalTitlePlayOptions" style="color: white") ELIJA LAS OPCIONES DE JUEGO DE LA PARTIDA
+                    //h5(class="modal-title" id="modalTitlePlayOptions") Elija opciones de juego
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div(class="modal-body" style="background-color: #3d3d3d;")
+                    div(class="container-fluid")
+                        div(class="row")
+                            div(class="col-sm-10")
+                                h6(class="timesTitle" style="color: red") ELIJA EL TIEMPO DEL CONTRARELOJ
+                                div(class="row")
+                                    div(class="col-2 col-sm-2")
+                                        button(id="buttonPlayerOptionTime1" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") 1
+                                    div(class="col-2 col-sm-2")
+                                        button(id="buttonPlayerOptionTime2" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") 3
+                                    div(class="col-2 col-sm-2")
+                                        button(id="buttonPlayerOptionTime3" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") 5
+                                    div(class="col-2 col-sm-2")
+                                        button(id="buttonPlayerOptionTime4" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") 10
+                                    div(class="col-2 col-sm-2")
+                                        button(id="buttonPlayerOptionTime5" class="btn btn-outline-danger" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") 15
+                                    h6(id="PlayerOptionChooseTime" style="color: green; margin-left: 15px") TIEMPO : N/A
+                                h6(class="timesTitle" style="color: red; margin-top: 10px") ELIJA EL NIVEL MÁXIMO DEL CONTRINCANTE
+                                        div(class="row")
+                                            div(class="col-10 col-sm-10")
+                                                <input style="margin-top: 10px;" type="range" min="1000" max="3000" value="2000" class="slider" id="sliderPlayerOptionMaxElo">
+                                            h6(id="PlayerOptionChooseElo" style="color: green; margin-left: 15px") ELO : 1500
+                div(class="modal-footer")
+                    button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+                    button(id="jugarContraAlquien" data-dismiss="modal" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCenterBusquedaDeJugador") Buscar partida
+
+block modalBusquedaDeJugador
+    <!-- Modal para elegir opciones de juego contra un jugador -->
+    div(class="modal fade" id="modalCenterBusquedaDeJugador" tabindex="-1" role="dialog" aria-labelledby="modalTitleBusquedaDeJugador" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+            div(class="modal-content" style="background-color: #3d3d3d; border: 1px solid white;")
+                div(class="modal-header")
+                    h5(class="modalTitleBusquedaDeJugador" style="color: white") BÚSQUEDA DE JUGADOR
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div(class="modal-body" style="background-color: #3d3d3d;")
+                    div(class="container-fluid")
+                        div(class="row")
+                            div(class="col-sm-16")
+                                h6(id="jugadorBusquedaEncontrado" style="color: white") NO HAY NINGÚN JUGADOR DISPONIBLE
+                                div(class="row")
+                                        span(id="jugadorEncontradoNombre" style="font-size: 20px" class="badge badge-success") N/A
+                                        button(id="mandarPeticionAJugador" data-dismiss="modal"  data-toggle="modal" data-target="#modalEsperarConfirmacionPeticion" class="btn btn-outline-success" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") MANDAR PETICIÓN
+                div(class="modal-footer")
+                    button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+
+block modalEsperarConfirmacionPeticion
+    <!-- Modal para elegir opciones de juego contra un jugador -->
+    div(class="modal fade" id="modalEsperarConfirmacionPeticion" tabindex="-1" role="dialog" aria-labelledby="modalEsperarConfirmacionPeticion" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+            div(class="modal-content" style="background-color: #3d3d3d; border: 1px solid white;")
+                div(class="modal-header")
+                    h5(class="modalTitleEsperarConfirmacionPeticion" style="color: white") ESPERANDO CONFIRMACIÓN DEL JUGADOR
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div(class="modal-body" style="background-color: #3d3d3d;")
+                    div(class="container-fluid")
+                        div(class="row")
+                            div(class="col-sm-16")
+                                div(class="row")
+                                    img(id="imgLoading" src="http://keywork.ir/img/default/load.gif" height="64" width="64")
+                                div(class="row")
+                                    h6(id="esperandoConfirmacion" style="color: green") ESPERANDO CONFIRMACIÓN ...
+                                div(class="row")
+                                    button(id="jugar" data-dismiss="modal" class="btn btn-outline-success" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") COMENZAR PARTIDA
+                div(class="modal-footer")
+                    button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+
+block modalMostrarPeticionDeJuego
+    <!-- Modal para elegir opciones de juego contra un jugador -->
+    div(class="modal fade" id="MostrarPeticionDeJuego" data-target = "#MostrarPeticionDeJuego" tabindex="-1" role="dialog" aria-labelledby="modalMostrarPeticionDeJuego" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+            div(class="modal-content" style="background-color: #3d3d3d; border: 1px solid white;")
+                div(class="modal-header")
+                    h5(class="modalTitleMostrarPeticionDeJuego" style="color: white") UN JUGADOR QUIERE JUGAR CONTIGO
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div(class="modal-body" style="background-color: #3d3d3d;")
+                    div(class="container-fluid")
+                        div(class="row")
+                            div(class="col-sm-16")
+                                div(class="row")
+                                    span(id="jugadorQueQuiereJugarContigo" style="font-size: 20px" class="badge badge-success") N/A
+                                    button(id="confirmarPeticion" data-dismiss="modal" class="btn btn-outline-success" type='button' style="margin-top:5px; margin-bottom:5px; width: 150%") COMENZAR PARTIDA
+                div(class="modal-footer")
+                    button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+
+block modalAlert
+    <!-- Modal para elegir opciones de juego contra un jugador -->
+    div(class="modal fade" id="Alert" data-target = "#Alert" tabindex="-1" role="dialog" aria-labelledby="modalAlert" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+            div(class="modal-content" style="background-color: #3d3d3d; border: 1px solid white;")
+                div(class="modal-header")
+                    h5(class="modalTitleAlert" style="color: red") MENSAJE DEL SERVIDOR
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div(class="modal-body" style="background-color: #3d3d3d;")
+                    div(class="container-fluid")
+                        div(class="row")
+                            div(class="col-sm-16")
+                                div(class="row")
+                                    span(id="alerta" style="font-size: 20px" class="badge badge-danger") ALERTA
+                div(class="modal-footer")
+                    button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
